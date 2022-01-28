@@ -26,16 +26,32 @@ app.use(cors());
 app.use(morgan('combined'));
 
 
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: 'a long, randomly-generated string stored in env',
-  baseURL: 'http://localhost:3001',
-  clientID: 'j76RbbMD2XDogXACgAv3ZMUoEwba0zbC',
-  issuerBaseURL: 'https://dev-eo3ov8rm.us.auth0.com'
-};
+// const config = {
+//   authRequired: false,
+//   auth0Logout: true,
+//   secret: 'a long, randomly-generated string stored in env',
+//   baseURL: 'http://localhost:3001',
+//   clientID: 'j76RbbMD2XDogXACgAv3ZMUoEwba0zbC',
+//   issuerBaseURL: 'https://dev-eo3ov8rm.us.auth0.com'
+// };
 
-app.use(auth(config));
+// app.use(auth(config));
+
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://dev-eo3ov8rm.us.auth0.com/.well-known/jwks.json`
+  }),
+
+  // Validate the audience and the issuer.
+  audience: 'https://dev-eo3ov8rm.us.auth0.com/api/v2/',
+  issuer: `https://dev-eo3ov8rm.us.auth0.com/`,
+  algorithms: ['RS256']
+});
+
+app.use(checkJwt);
 
 
 // ... leave the app definition and the middleware config untouched ...
